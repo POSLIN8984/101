@@ -1,32 +1,93 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台北 101 經營與配息數據看板</title>
+    <title>台北 101 (2899) 全歷史配息、營運與年報治理數據看板</title>
+    <!-- Chart.js & Tailwind CSS & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f8fafc; 
+        }
         .chart-container { position: relative; height: 350px; width: 100%; }
         .table-scrollbar::-webkit-scrollbar { width: 6px; }
         .table-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .gold-accent { color: #d4af37; }
+        .bg-gold-accent { background-color: #d4af37; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
-        <header class="text-center">
-            <h1 class="text-3xl font-bold text-slate-800">台北 101 (2899) 全歷史配息與營運看板</h1>
-            <p class="text-slate-500 mt-2">數據範圍：2013 - 2026 (更新至 2026/08 最新營收與達成率數據)</p>
-        </header>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-        <!-- 2026 業績目標達成率 (每月檢視進度) -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+    <!-- 頂部導覽列 Sticky Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md text-white border-b border-slate-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-600 text-white font-black px-2.5 py-1 rounded-lg text-lg tracking-wider">101</span>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-base leading-tight">台北金融大樓 (2899) 綜合營運看板</h1>
+                    <p class="text-[11px] text-slate-400">Taipei Financial Center Corp. Dashboard</p>
+                </div>
+            </div>
+            <nav class="hidden lg:flex space-x-5 text-xs font-semibold">
+                <a href="#section-target" class="hover:text-emerald-400 transition"><i class="fa-solid fa-bullseye mr-1"></i>2026目標</a>
+                <a href="#section-dividend" class="hover:text-emerald-400 transition"><i class="fa-solid fa-chart-line mr-1"></i>配息與營運</a>
+                <a href="#section-pretax" class="hover:text-emerald-400 transition"><i class="fa-solid fa-arrow-trend-up mr-1"></i>稅前淨利級距</a>
+                <a href="#section-shareholders" class="hover:text-emerald-400 transition"><i class="fa-solid fa-pie-chart mr-1"></i>股權結構</a>
+                <a href="#section-remuneration" class="hover:text-emerald-400 transition"><i class="fa-solid fa-user-tie mr-1"></i>高階酬金</a>
+                <a href="#section-analysis" class="hover:text-emerald-400 transition"><i class="fa-solid fa-scale-balanced mr-1"></i>酬金機制解析</a>
+            </nav>
+            <div class="flex items-center space-x-2">
+                <span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs rounded-full font-medium">
+                    最新年報數據整合
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Title Banner Section -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white py-10 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold inline-block mb-3">
+                    全方位營運數據與治理報告 (2013 - 2026)
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    台北 101 全歷史配息、財務業績與股權治理看板
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                    匯聚 2026 營收目標達成進度、歷史現金股利、稅前淨利成長級距、公股過半之十大股東架構及高階經營團隊酬金分析。
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <div class="bg-slate-800/80 border border-slate-700 px-4 py-2.5 rounded-xl text-center">
+                    <span class="text-[11px] text-slate-400 block">官股/泛公股持股</span>
+                    <span class="text-lg font-bold text-emerald-400">52.25%</span>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 px-4 py-2.5 rounded-xl text-center">
+                    <span class="text-[11px] text-slate-400 block">2026 當年配息</span>
+                    <span class="text-lg font-bold text-amber-400">1.74 元</span>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 px-4 py-2.5 rounded-xl text-center">
+                    <span class="text-[11px] text-slate-400 block">經理人獲利分派</span>
+                    <span class="text-lg font-bold text-blue-400">22 位主管</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 flex-grow w-full">
+
+        <!-- 1. 2026 業績目標達成率 (每月檢視進度) -->
+        <section id="section-target" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6 scroll-mt-20">
             <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                        <span class="mr-2 text-rose-500">🎯</span> 2026 年度業績目標與各月達成率檢視
+                        <span class="mr-2 text-rose-500"><i class="fa-solid fa-bullseye"></i></span> 2026 年度業績目標與各月達成率檢視
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">追蹤 2026 全年營收目標 69.20 億元之每月累計與單月達標狀況（更新至 2026/08）</p>
                 </div>
@@ -107,108 +168,111 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- 左側：配息與殖利率綜合圖表 -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-xl font-bold mb-6 text-slate-700 flex items-center justify-between">
-                    <span><span class="mr-2 text-blue-500">📊</span> 歷史配息與殖利率走勢</span>
-                    <span class="text-xs font-normal text-slate-400">殖利率採年度平均參考價計算</span>
-                </h2>
-                <div class="chart-container">
-                    <canvas id="dividendYieldChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 右側：配息數據細節表 -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                <h2 class="text-xl font-bold mb-4 text-slate-700"><span class="mr-2 text-emerald-500">📋</span> 歷史數據清單</h2>
-                <div class="overflow-y-auto table-scrollbar flex-grow" style="max-height: 350px;">
-                    <table class="w-full text-left text-sm">
-                        <thead class="sticky top-0 bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">年份</th>
-                                <th class="p-3 text-right">現金(元)</th>
-                                <th class="p-3 text-right">殖利率</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody" class="divide-y divide-slate-100">
-                            <!-- JS Inject -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 月營收成長軌跡 (包含 YoY) -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-700 flex items-center">
-                        <span class="mr-2 text-purple-600">🗓️</span> 近期月營收成長軌跡與 YoY 走勢
+        <!-- 2. 歷史配息與營運趨勢 -->
+        <section id="section-dividend" class="space-y-6 scroll-mt-20">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 左側：配息與殖利率綜合圖表 -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold mb-6 text-slate-700 flex items-center justify-between">
+                        <span><span class="mr-2 text-blue-500"><i class="fa-solid fa-chart-column"></i></span> 歷史配息與殖利率走勢</span>
+                        <span class="text-xs font-normal text-slate-400">殖利率採年度平均參考價計算</span>
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">呈現商場檔期（9月週年慶、12月跨年）對單月營收之明顯季節拉動效果與年增率 (YoY %)</p>
+                    <div class="chart-container">
+                        <canvas id="dividendYieldChart"></canvas>
+                    </div>
                 </div>
-                <div class="mt-2 md:mt-0 flex items-center space-x-4 text-xs font-medium">
-                    <span class="flex items-center"><span class="w-3 h-3 bg-purple-500 inline-block rounded mr-1"></span> 單月營收 (億元)</span>
-                    <span class="flex items-center"><span class="w-3 h-3 bg-amber-500 inline-block rounded-full mr-1"></span> YoY 年增率 (%)</span>
-                </div>
-            </div>
-            <div class="chart-container" style="height: 380px;">
-                <canvas id="monthlyRevenueChart"></canvas>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- 營運趨勢圖 -->
+                <!-- 右側：配息數據細節表 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                    <h2 class="text-xl font-bold mb-4 text-slate-700"><span class="mr-2 text-emerald-500"><i class="fa-solid fa-list-check"></i></span> 歷史數據清單</h2>
+                    <div class="overflow-y-auto table-scrollbar flex-grow" style="max-height: 350px;">
+                        <table class="w-full text-left text-sm">
+                            <thead class="sticky top-0 bg-slate-50 text-slate-600 uppercase text-xs">
+                                <tr>
+                                    <th class="p-3">年份</th>
+                                    <th class="p-3 text-right">現金(元)</th>
+                                    <th class="p-3 text-right">殖利率</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="divide-y divide-slate-100">
+                                <!-- JS Inject -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月營收成長軌跡 (包含 YoY) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-xl font-bold mb-4 text-slate-700 flex items-center">
-                    <span class="mr-2 text-green-500">📉</span> 稅後淨利與年度營收變動 (億元)
-                </h2>
-                <div class="chart-container">
-                    <canvas id="profitChart"></canvas>
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-700 flex items-center">
+                            <span class="mr-2 text-purple-600"><i class="fa-solid fa-calendar-days"></i></span> 近期月營收成長軌跡與 YoY 走勢
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">呈現商場檔期（9月週年慶、12月跨年）對單月營收之明顯季節拉動效果與年增率 (YoY %)</p>
+                    </div>
+                    <div class="mt-2 md:mt-0 flex items-center space-x-4 text-xs font-medium">
+                        <span class="flex items-center"><span class="w-3 h-3 bg-purple-500 inline-block rounded mr-1"></span> 單月營收 (億元)</span>
+                        <span class="flex items-center"><span class="w-3 h-3 bg-amber-500 inline-block rounded-full mr-1"></span> YoY 年增率 (%)</span>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 380px;">
+                    <canvas id="monthlyRevenueChart"></canvas>
                 </div>
             </div>
 
-            <!-- 關鍵觀察卡片 -->
-            <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-8 rounded-2xl shadow-xl text-white">
-                <h2 class="text-xl font-bold mb-6 flex items-center text-indigo-300">
-                    <span class="mr-2 text-2xl">💡</span> 維運數據深度分析
-                </h2>
-                <div class="space-y-6">
-                    <div>
-                        <h3 class="font-bold text-white mb-2">● 月營收季節性爆發力</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">每年 9 月週年慶預購檔期與 12 月跨年節慶，單月營收可衝高至 6.8~7.4 億元，顯著拉升全年獲利基底。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 營運趨勢圖 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold mb-4 text-slate-700 flex items-center">
+                        <span class="mr-2 text-green-500"><i class="fa-solid fa-chart-line"></i></span> 稅後淨利與年度營收變動 (億元)
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="profitChart"></canvas>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-white mb-2">● YoY 穩健性與 8 月強勁增幅</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">2026 前 8 個月月營收 YoY 維持在 +5.6% ~ +6.2% 的穩定正成長區間，8 月營收更衝至 5.70 億元（達標率 103.6%），展現頂級精品與觀光人潮熱度。</p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-white mb-2">● 股利新高點</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">2026 年已配發 1.74 元，延續自 2023 年以來的強勁成長曲線，反映商場精品化轉型與管理輸出的超額利潤。</p>
-                    </div>
-                    <div class="pt-4 border-t border-slate-700 flex justify-between items-center">
+                </div>
+
+                <!-- 關鍵觀察卡片 -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-8 rounded-2xl shadow-xl text-white flex flex-col justify-between">
+                    <h2 class="text-xl font-bold mb-6 flex items-center text-indigo-300">
+                        <span class="mr-2 text-2xl"><i class="fa-solid fa-lightbulb"></i></span> 維運數據深度分析
+                    </h2>
+                    <div class="space-y-5 text-sm">
                         <div>
-                            <div class="text-xs text-slate-500">2026 現金殖利率</div>
+                            <h3 class="font-bold text-white mb-1">● 月營收季節性爆發力</h3>
+                            <p class="text-slate-300 text-xs leading-relaxed">每年 9 月週年慶預購檔期與 12 月跨年節慶，單月營收可衝高至 6.8~7.4 億元，顯著拉升全年獲利基底。</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white mb-1">● YoY 穩健性與 8 月強勁增幅</h3>
+                            <p class="text-slate-300 text-xs leading-relaxed">2026 前 8 個月月營收 YoY 維持在 +5.6% ~ +6.2% 的穩定正成長區間，8 月營收更衝至 5.70 億元（達標率 103.6%），展現頂級精品與觀光人潮熱度。</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white mb-1">● 股利新高點</h3>
+                            <p class="text-slate-300 text-xs leading-relaxed">2026 年已配發 1.74 元，延續自 2023 年以來的強勁成長曲線，反映商場精品化轉型與管理輸出的超額利潤。</p>
+                        </div>
+                    </div>
+                    <div class="pt-4 mt-6 border-t border-slate-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-xs text-slate-400">2026 現金殖利率</div>
                             <div class="text-2xl font-bold text-indigo-400">~ 4.50%</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs text-slate-500">歷史累計配息 (元)</div>
+                            <div class="text-xs text-slate-400">歷史累計配息 (元)</div>
                             <div class="text-2xl font-bold text-emerald-400">14.33</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- 新增：年度稅前淨利成長紀錄與 4 級距分組分析 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+        <!-- 3. 年度稅前淨利成長紀錄與 4 級距分組分析 -->
+        <section id="section-pretax" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6 scroll-mt-20">
             <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                        <span class="mr-2 text-amber-500">📈</span> 年度稅前淨利成長紀錄 (4級距統計分析)
+                        <span class="mr-2 text-amber-500"><i class="fa-solid fa-arrow-trend-up"></i></span> 年度稅前淨利成長紀錄 (4級距統計分析)
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">分析 2014 - 2026 歷年稅前淨利 YoY 成長率之分佈分級情況 (共計 13 個比較年度)</p>
                 </div>
@@ -287,8 +351,345 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- 4. 公司股份組成與主要股東結構 (最新年報揭露) -->
+        <section id="section-shareholders" class="space-y-6 scroll-mt-20">
+            <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between sm:items-end gap-2">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-pie-chart text-emerald-600"></i> 四、 公司股份組成與主要股東結構
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">最新年報揭露前十大法人股東持股明細與公股掌控比例</p>
+                </div>
+                <span class="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                    中聯信託原代管股權已於115年3月完成轉讓
+                </span>
+            </div>
+
+            <!-- 公股與私股比例摘要列 & 圖表 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col justify-between space-y-6">
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                            <h3 class="text-xl font-extrabold text-emerald-400 flex items-center gap-2">
+                                💡 官股/泛公股持股總計：<span class="text-2xl font-black text-white">52.25%</span>
+                            </h3>
+                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs px-3 py-1 rounded-full">
+                                維持穩定過半之經營主導權
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            官股與泛公股陣營包含：中華電信 (11.76%)、臺灣證券交易所 (8.98%)、第一銀行 (5.00%)、合作金庫 (5.00%)、華南金控 (5.00%)、兆豐銀行 (5.00%)、彰化銀行 (3.50%) 及 臺灣企銀 (3.00%)。
+                        </p>
+                    </div>
+
+                    <!-- Visual Bar -->
+                    <div>
+                        <div class="w-full bg-slate-700 h-5 rounded-full overflow-hidden flex shadow-inner">
+                            <div class="bg-emerald-500 h-full flex items-center justify-center text-[10px] font-bold" style="width: 52.25%" title="官股/泛公股 52.25%">52.25% (公股)</div>
+                            <div class="bg-amber-400 h-full flex items-center justify-center text-[10px] font-bold text-slate-900" style="width: 17.27%" title="台灣伊藤忠 17.27%">17.27%</div>
+                            <div class="bg-slate-400 h-full flex items-center justify-center text-[10px] font-bold text-slate-900" style="width: 30.48%" title="其他股東 30.48%">30.48%</div>
+                        </div>
+                        <div class="flex flex-wrap gap-4 text-xs text-slate-300 mt-3 font-medium">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span> 官股 / 泛公股 (52.25%)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-400 rounded-full inline-block"></span> 外資私股 (台灣伊藤忠 17.27%)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-slate-400 rounded-full inline-block"></span> 其他民營銀行與私人股東 (30.48%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shareholder Donut Chart -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider self-start mb-2">股權分佈佔比圓餅圖</h3>
+                    <div class="chart-container" style="height: 220px; width: 100%;">
+                        <canvas id="shareholderChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shareholder Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-100 text-slate-800 uppercase font-bold text-xs border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4">排名</th>
+                                <th class="px-6 py-4">股東名稱</th>
+                                <th class="px-6 py-4 text-right">持股數（股）</th>
+                                <th class="px-6 py-4 text-right">持股比例（%）</th>
+                                <th class="px-6 py-4">屬性分類</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr class="hover:bg-amber-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">1</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">台灣伊藤忠投資股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">253,930,486</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-amber-600">17.27%</td>
+                                <td class="px-6 py-3.5"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-medium">外資 / 私股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">2</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">中華電信股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">172,926,850</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">11.76%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">泛公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">3</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">臺灣證券交易所股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">132,058,799</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">8.98%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">泛公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">4</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">第一商業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">73,500,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">5.00%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">5</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">合作金庫商業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">73,500,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">5.00%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">6</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">華南金融控股股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">73,500,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">5.00%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">7</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">兆豐國際商業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">73,499,228</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">5.00%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">8</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">彰化商業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">51,450,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">3.50%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">9</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">中國信託商業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">45,000,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-blue-600">3.06%</td>
+                                <td class="px-6 py-3.5"><span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-medium">民營私股</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-3.5 font-bold text-slate-900">10</td>
+                                <td class="px-6 py-3.5 font-medium text-slate-900">臺灣中小企業銀行股份有限公司</td>
+                                <td class="px-6 py-3.5 text-right font-mono">44,100,000</td>
+                                <td class="px-6 py-3.5 text-right font-semibold text-emerald-700">3.00%</td>
+                                <td class="px-6 py-3.5"><span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium">官股 / 公股</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 董監事與經理人酬金分派 (最新年報揭露) -->
+        <section id="section-remuneration" class="space-y-6 scroll-mt-20">
+            <div class="border-b border-slate-200 pb-4">
+                <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-emerald-600"></i> 五、 董事長、總經理及高階經理人酬金狀況
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">依最新年報揭露之財務數據呈現（金額單位：新台幣萬元）</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <!-- 董事長酬金卡片 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-800 font-semibold text-xs px-3 py-1 rounded-full">董事長酬金</span>
+                            <span class="text-xs text-slate-400">兆豐銀行代表人</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-1">賈永婕 <span class="text-base font-normal text-slate-500">女士</span></h3>
+                        <p class="text-xs text-slate-500 mb-6">全年度酬金總額占稅後純益 0.79%</p>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
+                                <span class="text-slate-600">董事酬金（報酬與業務執行費）</span>
+                                <span class="font-mono font-bold text-slate-900">1,567.3 萬元</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
+                                <span class="text-slate-600">兼任員工酬金（薪資、獎金與特支費）</span>
+                                <span class="font-mono font-bold text-slate-900">674.7 萬元</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                        <span class="font-bold text-slate-800 text-sm">董事長總酬金</span>
+                        <span class="text-xl font-mono font-extrabold text-amber-600">2,242.0 萬元</span>
+                    </div>
+                </div>
+
+                <!-- 董監事全體與總經理團隊 -->
+                <div class="space-y-6">
+                    <!-- 全體董監事 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-lg text-slate-900">全體董事與監察人酬金總額</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded font-medium">全年度</span>
+                        </div>
+                        <p class="text-2xl font-mono font-extrabold text-slate-900 my-1">2,084.4 <span class="text-sm font-normal text-slate-500">萬元</span></p>
+                        <p class="text-xs text-slate-500">全體董監事酬金約占公司稅後純益 0.73%。</p>
+                    </div>
+
+                    <!-- 總經理與副總經理 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-lg text-slate-900">總經理與副總經理薪酬</h3>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded font-medium">高階執行層</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">包含總經理（朱麗文）與副總經理（張國轅）二人合計：</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs mb-4">
+                            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-slate-500 block">薪資</span>
+                                <span class="font-bold font-mono text-slate-800 text-sm">440.7 萬</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-slate-500 block">退職退休金</span>
+                                <span class="font-bold font-mono text-slate-800 text-sm">22.0 萬</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-slate-500 block">獎金及特支費</span>
+                                <span class="font-bold font-mono text-slate-800 text-sm">456.4 萬</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-slate-500 block">分派員工酬勞</span>
+                                <span class="font-bold font-mono text-slate-800 text-sm">28.3 萬</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pt-2 border-t border-slate-100">
+                            <span class="font-bold text-slate-700">高階經理人薪酬合計</span>
+                            <span class="font-mono font-bold text-emerald-600 text-base">947.4 萬元 <span class="text-xs font-normal text-slate-400">(占稅後 0.33%)</span></span>
+                        </div>
+                        <div class="mt-3 text-xs bg-slate-50 text-slate-700 p-2.5 rounded-lg space-y-1 border border-slate-200/60">
+                            <p class="font-semibold text-slate-800">級距分布明細：</p>
+                            <p>• 總經理（朱麗文）：500 萬元（含）～ 1,000 萬元（不含）</p>
+                            <p>• 副總經理（張國轅）：100 萬元（含）～ 200 萬元（不含）</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 各經理人分派員工酬勞 -->
+            <div class="bg-gradient-to-r from-emerald-900 via-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <span class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full border border-emerald-500/30">專業營運團隊分派</span>
+                        <h3 class="text-xl font-bold my-2">各經理人分派員工酬勞狀況</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                            分派對象包含總經理、副總經理、協理、資深協理、各事業處/行政/品牌/安全/稽核/數據等部室經理及副理，共計 <strong class="text-emerald-400">22 位經理人</strong>。
+                        </p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur border border-white/20 p-4 rounded-xl text-right min-w-[200px]">
+                        <span class="text-xs text-slate-300 block">分派總金額（現金酬勞）</span>
+                        <span class="text-3xl font-mono font-extrabold text-emerald-400">1,670.6 <span class="text-base font-normal text-white">萬元</span></span>
+                        <span class="text-xs text-slate-300 block mt-1">占稅後純益 0.59%</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 6. 酬金差異解析 -->
+        <section id="section-analysis" class="space-y-6 scroll-mt-20">
+            <div class="border-b border-slate-200 pb-4">
+                <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced text-emerald-600"></i> 六、 經理人酬金分派與高階長官酬金之差異說明
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">解析盈餘分派、法規依據與經營階層全包式薪酬之制度區隔</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center font-bold mb-4 text-lg">
+                            1
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">性質與組成結構不同</h3>
+                        <ul class="text-xs text-slate-600 space-y-3 leading-relaxed">
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">高階長官酬金（全包式薪酬）：</strong>
+                                包含職務報酬、董事/監察人酬勞、車馬費/業務執行費、常態薪資以及年終與績效獎金，係經營階層整年度之完整薪酬組合。
+                            </li>
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">經理人酬金分派（盈餘分派）：</strong>
+                                指依《公司法》第235-1條與公司章程規定，當公司年度有獲利時按固定比例提撥給全體員工（含經理人）之「員工酬勞」，不包含經理人平時領取之固定基本薪資。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center font-bold mb-4 text-lg">
+                            2
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">法規依據與決議程序</h3>
+                        <ul class="text-xs text-slate-600 space-y-3 leading-relaxed">
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">董事長/董監事酬金：</strong>
+                                依據發起人會議決議或董事會核定之標準給付。
+                            </li>
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">經理人員工酬勞：</strong>
+                                依公司章程第30條第1項規定提撥，由薪酬委員會或董事會決議盈餘分派方案後辦理發放。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center font-bold mb-4 text-lg">
+                            3
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">適用對象與涵蓋層級</h3>
+                        <ul class="text-xs text-slate-600 space-y-3 leading-relaxed">
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">高階長官：</strong>
+                                指公司最高決策層與核心經營領導者（董事長、總經理、副總經理）。
+                            </li>
+                            <li class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <strong class="text-slate-800 block text-sm mb-1">經理人團隊：</strong>
+                                涵蓋執行層面之各專業部門主管（如招商部、物管部、資訊部、財務部、法務室等經理及副理），代表公司對中高階管理團隊績效之盈餘回饋。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="bg-emerald-600 text-white font-bold px-2 py-0.5 rounded text-xs">101</span>
+                <span>台北金融大樓股份有限公司 Taipei Financial Center Corp. (2899)</span>
+            </div>
+            <p class="text-slate-500">資訊來源：台北101歷年財務報告與最新年報揭露資訊整理。</p>
         </div>
-    </div>
+    </footer>
 
     <script>
         // 歷史年度數據 (2013-2026)
@@ -348,7 +749,7 @@
             });
         }
 
-        // 近期月營收資料 (億元) 與 YoY (%) - 更新至 2026/08
+        // 近期月營收資料 (億元) 與 YoY (%)
         const monthlyData = [
             { month: '2025/01', rev: 5.20, yoy: 6.2 },
             { month: '2025/02', rev: 4.80, yoy: 5.8 },
@@ -451,15 +852,7 @@
                     }
                 },
                 plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                return label + ': ' + context.parsed.y;
-                            }
-                        }
-                    }
+                    legend: { position: 'top' }
                 }
             }
         });
@@ -489,7 +882,6 @@
                         backgroundColor: '#f59e0b',
                         borderWidth: 3,
                         pointRadius: 4,
-                        pointHoverRadius: 6,
                         yAxisID: 'yYoY',
                         order: 1,
                         tension: 0.2
@@ -500,34 +892,17 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: '單月營收 (億元)' }
-                    },
+                    y: { beginAtZero: true, title: { display: true, text: '單月營收 (億元)' } },
                     yYoY: {
                         position: 'right',
                         min: 0,
                         max: 12,
                         grid: { drawOnChartArea: false },
                         title: { display: true, text: 'YoY 年增率 (%)' },
-                        ticks: {
-                            callback: value => value + '%'
-                        }
+                        ticks: { callback: value => value + '%' }
                     }
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (context.dataset.type === 'line') {
-                                    return `YoY 年增率: +${context.parsed.y}%`;
-                                }
-                                return `單月營收: ${context.parsed.y} 億元`;
-                            }
-                        }
-                    }
-                }
+                plugins: { legend: { display: false } }
             }
         });
 
@@ -559,9 +934,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+                plugins: { legend: { position: 'bottom' } }
             }
         });
 
@@ -611,38 +984,21 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: '營收 (億元)' }
-                    },
+                    y: { beginAtZero: true, title: { display: true, text: '營收 (億元)' } },
                     yRate: {
                         position: 'right',
                         min: 90,
                         max: 110,
                         grid: { drawOnChartArea: false },
                         title: { display: true, text: '達成率 (%)' },
-                        ticks: {
-                            callback: value => value + '%'
-                        }
+                        ticks: { callback: value => value + '%' }
                     }
                 },
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (context.dataset.type === 'line') {
-                                    return context.parsed.y ? `達成率: ${context.parsed.y}%` : '尚無實際數據';
-                                }
-                                return `${context.dataset.label}: ${context.parsed.y || '未到期'} 億元`;
-                            }
-                        }
-                    }
-                }
+                plugins: { legend: { position: 'top' } }
             }
         });
 
-        // 5. 稅前淨利與 YoY 成長率 (按級距著色)
+        // 5. 稅前淨利與 YoY 成長率
         const pretaxGrowthCtx = document.getElementById('pretaxGrowthChart').getContext('2d');
         new Chart(pretaxGrowthCtx, {
             type: 'bar',
@@ -663,10 +1019,9 @@
                         data: pretaxGrowthData.map(d => d.growthRate),
                         type: 'line',
                         borderColor: '#6366f1',
-                        backgroundColor: (context) => pretaxGrowthData.map(d => d.colorHex),
+                        backgroundColor: pretaxGrowthData.map(d => d.colorHex),
                         pointBackgroundColor: pretaxGrowthData.map(d => d.colorHex),
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        pointRadius: 5,
                         borderWidth: 2,
                         yAxisID: 'yGrowth',
                         order: 1
@@ -677,34 +1032,56 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: '稅前淨利 (億元)' }
-                    },
+                    y: { beginAtZero: true, title: { display: true, text: '稅前淨利 (億元)' } },
                     yGrowth: {
                         position: 'right',
                         grid: { drawOnChartArea: false },
                         title: { display: true, text: 'YoY 成長率 (%)' },
-                        ticks: {
-                            callback: value => value + '%'
-                        }
+                        ticks: { callback: value => value + '%' }
                     }
                 },
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        // 6. 主要股東結構圓餅圖
+        const shareholderCtx = document.getElementById('shareholderChart').getContext('2d');
+        new Chart(shareholderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['官股/泛公股陣營 (52.25%)', '外資 (台灣伊藤忠 17.27%)', '民營私股 (中國信託 3.06%)', '其他股東 (27.42%)'],
+                datasets: [{
+                    data: [52.25, 17.27, 3.06, 27.42],
+                    backgroundColor: [
+                        '#10b981', // 公股 - 綠色
+                        '#f59e0b', // 伊藤忠 - 金色
+                        '#2563eb', // 中信 - 藍色
+                        '#94a3b8'  // 其他 - 灰色
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top' },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const idx = context.dataIndex;
-                                const item = pretaxGrowthData[idx];
-                                if (context.dataset.type === 'line') {
-                                    return `成長率 (YoY): ${item.growthRate}% [${item.levelClass}]`;
-                                }
-                                return `稅前淨利: ${item.pretax} 億元`;
+                                return ` ${context.label}: ${context.parsed}%`;
                             }
                         }
                     }
-                }
+                },
+                cutout: '65%'
             }
         });
     </script>
