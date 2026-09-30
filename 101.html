@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台北 101 經營與配息數據看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .table-scrollbar::-webkit-scrollbar { width: 6px; }
+        .table-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <header class="text-center">
+            <h1 class="text-3xl font-bold text-slate-800">台北 101 (2899) 全歷史配息與營運看板</h1>
+            <p class="text-slate-500 mt-2">數據範圍：2013 - 2026 (更新至 2026/08 最新營收與達成率數據)</p>
+        </header>
+
+        <!-- 2026 業績目標達成率 (每月檢視進度) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="mr-2 text-rose-500">🎯</span> 2026 年度業績目標與各月達成率檢視
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">追蹤 2026 全年營收目標 69.20 億元之每月累計與單月達標狀況（更新至 2026/08）</p>
+                </div>
+                <div class="mt-3 md:mt-0 flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full flex items-center">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping mr-1.5"></span> 前 8 個月超額達標 102.1%
+                    </span>
+                </div>
+            </div>
+
+            <!-- 關鍵指標卡片 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="text-xs text-slate-400 font-medium">2026 全年目標</div>
+                    <div class="text-xl md:text-2xl font-bold text-slate-800 mt-1">69.20 <span class="text-xs font-normal">億元</span></div>
+                    <div class="text-xs text-slate-400 mt-1">時間進度：66.7%</div>
+                </div>
+                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <div class="text-xs text-blue-500 font-medium">1-8月累計實際營收</div>
+                    <div class="text-xl md:text-2xl font-bold text-blue-700 mt-1">43.30 <span class="text-xs font-normal">億元</span></div>
+                    <div class="text-xs text-blue-500 mt-1">目標：42.40 億元 (+0.90億)</div>
+                </div>
+                <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
+                    <div class="text-xs text-emerald-600 font-medium">1-8月累計達成率</div>
+                    <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">102.1 <span class="text-xs font-normal">%</span></div>
+                    <div class="w-full bg-emerald-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div class="bg-emerald-500 h-full rounded-full" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                    <div class="text-xs text-purple-600 font-medium">全年目標完成進度</div>
+                    <div class="text-xl md:text-2xl font-bold text-purple-700 mt-1">62.57 <span class="text-xs font-normal">%</span></div>
+                    <div class="text-xs text-purple-500 mt-1">旺季(9-12月)待貢獻 37.43%</div>
+                </div>
+            </div>
+
+            <!-- 2026 目標與實際對比圖表 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 chart-container" style="height: 320px;">
+                    <canvas id="targetVsActualChart"></canvas>
+                </div>
+                <!-- 各月達成率微型清單 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">2026 年各月達成率概況</h3>
+                    <div class="space-y-1.5 text-xs overflow-y-auto max-h-[250px] table-scrollbar pr-1">
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>1月：目標 5.40億 / 實際 5.50億</span>
+                            <span class="font-bold text-emerald-600">101.9%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>2月：目標 5.00億 / 實際 5.10億</span>
+                            <span class="font-bold text-emerald-600">102.0%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>3月：目標 5.10億 / 實際 5.20億</span>
+                            <span class="font-bold text-emerald-600">102.0%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>4月：目標 5.30億 / 實際 5.40億</span>
+                            <span class="font-bold text-emerald-600">101.9%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>5月：目標 5.50億 / 實際 5.60億</span>
+                            <span class="font-bold text-emerald-600">101.8%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>6月：目標 5.20億 / 實際 5.30億</span>
+                            <span class="font-bold text-emerald-600">101.9%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100">
+                            <span>7月：目標 5.40億 / 實際 5.50億</span>
+                            <span class="font-bold text-emerald-600">101.9%</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-2 rounded shadow-2xs border border-slate-100 bg-emerald-50/40">
+                            <span>8月：目標 5.50億 / 實際 5.70億</span>
+                            <span class="font-bold text-emerald-600">103.6% 🔥</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左側：配息與殖利率綜合圖表 -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold mb-6 text-slate-700 flex items-center justify-between">
+                    <span><span class="mr-2 text-blue-500">📊</span> 歷史配息與殖利率走勢</span>
+                    <span class="text-xs font-normal text-slate-400">殖利率採年度平均參考價計算</span>
+                </h2>
+                <div class="chart-container">
+                    <canvas id="dividendYieldChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 右側：配息數據細節表 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <h2 class="text-xl font-bold mb-4 text-slate-700"><span class="mr-2 text-emerald-500">📋</span> 歷史數據清單</h2>
+                <div class="overflow-y-auto table-scrollbar flex-grow" style="max-height: 350px;">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-slate-50 text-slate-600 uppercase text-xs">
+                            <tr>
+                                <th class="p-3">年份</th>
+                                <th class="p-3 text-right">現金(元)</th>
+                                <th class="p-3 text-right">殖利率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="divide-y divide-slate-100">
+                            <!-- JS Inject -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 月營收成長軌跡 (包含 YoY) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-700 flex items-center">
+                        <span class="mr-2 text-purple-600">🗓️</span> 近期月營收成長軌跡與 YoY 走勢
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">呈現商場檔期（9月週年慶、12月跨年）對單月營收之明顯季節拉動效果與年增率 (YoY %)</p>
+                </div>
+                <div class="mt-2 md:mt-0 flex items-center space-x-4 text-xs font-medium">
+                    <span class="flex items-center"><span class="w-3 h-3 bg-purple-500 inline-block rounded mr-1"></span> 單月營收 (億元)</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-amber-500 inline-block rounded-full mr-1"></span> YoY 年增率 (%)</span>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 380px;">
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 營運趨勢圖 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold mb-4 text-slate-700 flex items-center">
+                    <span class="mr-2 text-green-500">📉</span> 稅後淨利與年度營收變動 (億元)
+                </h2>
+                <div class="chart-container">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 關鍵觀察卡片 -->
+            <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-8 rounded-2xl shadow-xl text-white">
+                <h2 class="text-xl font-bold mb-6 flex items-center text-indigo-300">
+                    <span class="mr-2 text-2xl">💡</span> 維運數據深度分析
+                </h2>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-bold text-white mb-2">● 月營收季節性爆發力</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">每年 9 月週年慶預購檔期與 12 月跨年節慶，單月營收可衝高至 6.8~7.4 億元，顯著拉升全年獲利基底。</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white mb-2">● YoY 穩健性與 8 月強勁增幅</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">2026 前 8 個月月營收 YoY 維持在 +5.6% ~ +6.2% 的穩定正成長區間，8 月營收更衝至 5.70 億元（達標率 103.6%），展現頂級精品與觀光人潮熱度。</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white mb-2">● 股利新高點</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">2026 年已配發 1.74 元，延續自 2023 年以來的強勁成長曲線，反映商場精品化轉型與管理輸出的超額利潤。</p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-xs text-slate-500">2026 現金殖利率</div>
+                            <div class="text-2xl font-bold text-indigo-400">~ 4.50%</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500">歷史累計配息 (元)</div>
+                            <div class="text-2xl font-bold text-emerald-400">14.33</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增：年度稅前淨利成長紀錄與 4 級距分組分析 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="mr-2 text-amber-500">📈</span> 年度稅前淨利成長紀錄 (4級距統計分析)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">分析 2014 - 2026 歷年稅前淨利 YoY 成長率之分佈分級情況 (共計 13 個比較年度)</p>
+                </div>
+                <span class="mt-2 md:mt-0 px-3 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded-lg border border-amber-200">
+                    基期：2013 年稅前淨利 ~16.0 億元
+                </span>
+            </div>
+
+            <!-- 4 個級距統計卡片 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+                    <div class="flex items-center justify-between text-rose-700 font-semibold text-xs">
+                        <span>衰退區間</span>
+                        <span class="px-1.5 py-0.5 bg-rose-200 text-rose-800 rounded">級距 1</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-bold text-rose-800 mt-2">&lt; 0%</div>
+                    <div class="text-xs text-rose-600 mt-1 flex justify-between items-center">
+                        <span>符合年份：<strong class="text-rose-900">2 年</strong></span>
+                        <span class="font-semibold">15.4%</span>
+                    </div>
+                    <div class="text-[11px] text-rose-500 mt-1.5 pt-1 border-t border-rose-200/60">2020 (疫情), 2021</div>
+                </div>
+
+                <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
+                    <div class="flex items-center justify-between text-amber-700 font-semibold text-xs">
+                        <span>平穩增長</span>
+                        <span class="px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded">級距 2</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-bold text-amber-800 mt-2">0% 至 &lt;10%</div>
+                    <div class="text-xs text-amber-600 mt-1 flex justify-between items-center">
+                        <span>符合年份：<strong class="text-amber-900">4 年</strong></span>
+                        <span class="font-semibold">30.8%</span>
+                    </div>
+                    <div class="text-[11px] text-amber-600 mt-1.5 pt-1 border-t border-amber-200/60">2017, 2018, 2019, 2026</div>
+                </div>
+
+                <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between text-blue-700 font-semibold text-xs">
+                        <span>雙位數成長</span>
+                        <span class="px-1.5 py-0.5 bg-blue-200 text-blue-800 rounded">級距 3</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-bold text-blue-800 mt-2">10% 至 &lt;20%</div>
+                    <div class="text-xs text-blue-600 mt-1 flex justify-between items-center">
+                        <span>符合年份：<strong class="text-blue-900">6 年</strong></span>
+                        <span class="font-semibold">46.2%</span>
+                    </div>
+                    <div class="text-[11px] text-blue-600 mt-1.5 pt-1 border-t border-blue-200/60">2014, 2015, 2016, 2022, 2024, 2025</div>
+                </div>
+
+                <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+                    <div class="flex items-center justify-between text-emerald-700 font-semibold text-xs">
+                        <span>強勁爆發</span>
+                        <span class="px-1.5 py-0.5 bg-emerald-200 text-emerald-800 rounded">級距 4</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-bold text-emerald-800 mt-2">20% 以上</div>
+                    <div class="text-xs text-emerald-600 mt-1 flex justify-between items-center">
+                        <span>符合年份：<strong class="text-emerald-900">1 年</strong></span>
+                        <span class="font-semibold">7.7%</span>
+                    </div>
+                    <div class="text-[11px] text-emerald-600 mt-1.5 pt-1 border-t border-emerald-200/60">2023 (+56.2% 疫後大反彈)</div>
+                </div>
+            </div>
+
+            <!-- 稅前淨利與成長率圖表 + 詳細清單 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 圖表區 -->
+                <div class="lg:col-span-2 chart-container" style="height: 340px;">
+                    <canvas id="pretaxGrowthChart"></canvas>
+                </div>
+
+                <!-- 級距對照歷年列表 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">歷年稅前淨利成長率與分級對照</h3>
+                    <div class="space-y-1.5 text-xs overflow-y-auto max-h-[270px] table-scrollbar pr-1" id="pretaxTableBody">
+                        <!-- JS Inject -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 歷史年度數據 (2013-2026)
+        const fullData = [
+            { year: '2013', div: 0.50, yield: '2.50%', revenue: 45.2, profit: 12.8, pretax: 16.0 },
+            { year: '2014', div: 0.82, yield: '3.60%', revenue: 48.1, profit: 15.2, pretax: 19.0 },
+            { year: '2015', div: 1.00, yield: '4.20%', revenue: 49.3, profit: 18.1, pretax: 22.6 },
+            { year: '2016', div: 1.20, yield: '4.80%', revenue: 50.1, profit: 20.3, pretax: 25.4 },
+            { year: '2017', div: 1.30, yield: '5.10%', revenue: 51.1, profit: 21.4, pretax: 26.8 },
+            { year: '2018', div: 1.30, yield: '4.60%', revenue: 54.8, profit: 21.4, pretax: 26.8 },
+            { year: '2019', div: 1.32, yield: '4.40%', revenue: 51.5, profit: 21.6, pretax: 27.0 },
+            { year: '2020', div: 0.77, yield: '2.80%', revenue: 40.8, profit: 12.7, pretax: 15.9 },
+            { year: '2021', div: 0.74, yield: '2.60%', revenue: 38.6, profit: 12.1, pretax: 15.1 },
+            { year: '2022', div: 0.86, yield: '2.90%', revenue: 45.9, profit: 14.2, pretax: 17.8 },
+            { year: '2023', div: 1.36, yield: '3.80%', revenue: 57.9, profit: 22.2, pretax: 27.8 },
+            { year: '2024', div: 1.57, yield: '4.06%', revenue: 62.8, profit: 25.67, pretax: 32.08 },
+            { year: '2025', div: 1.74, yield: '4.50%', revenue: 66.5, profit: 28.43, pretax: 35.52 },
+            { year: '2026', div: 1.74, yield: '4.50%', revenue: 69.2, profit: 29.5, pretax: 36.9 }
+        ];
+
+        // 計算稅前淨利 YoY 成長率與對應級距
+        const pretaxGrowthData = [];
+        for (let i = 1; i < fullData.length; i++) {
+            const current = fullData[i];
+            const prev = fullData[i-1];
+            const growthRate = ((current.pretax - prev.pretax) / prev.pretax) * 100;
+            
+            let levelClass = '';
+            let levelBadge = '';
+            let colorHex = '';
+
+            if (growthRate < 0) {
+                levelClass = '< 0%';
+                levelBadge = 'bg-rose-100 text-rose-700 border-rose-200';
+                colorHex = '#ef4444';
+            } else if (growthRate < 10) {
+                levelClass = '0% 至 <10%';
+                levelBadge = 'bg-amber-100 text-amber-700 border-amber-200';
+                colorHex = '#f59e0b';
+            } else if (growthRate < 20) {
+                levelClass = '10% 至 <20%';
+                levelBadge = 'bg-blue-100 text-blue-700 border-blue-200';
+                colorHex = '#3b82f6';
+            } else {
+                levelClass = '20% 以上';
+                levelBadge = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                colorHex = '#10b981';
+            }
+
+            pretaxGrowthData.push({
+                year: current.year,
+                pretax: current.pretax,
+                growthRate: parseFloat(growthRate.toFixed(1)),
+                levelClass: levelClass,
+                levelBadge: levelBadge,
+                colorHex: colorHex
+            });
+        }
+
+        // 近期月營收資料 (億元) 與 YoY (%) - 更新至 2026/08
+        const monthlyData = [
+            { month: '2025/01', rev: 5.20, yoy: 6.2 },
+            { month: '2025/02', rev: 4.80, yoy: 5.8 },
+            { month: '2025/03', rev: 4.90, yoy: 4.5 },
+            { month: '2025/04', rev: 5.10, yoy: 5.1 },
+            { month: '2025/05', rev: 5.30, yoy: 6.0 },
+            { month: '2025/06', rev: 5.00, yoy: 4.8 },
+            { month: '2025/07', rev: 5.20, yoy: 5.3 },
+            { month: '2025/08', rev: 5.40, yoy: 5.9 },
+            { month: '2025/09', rev: 6.80, yoy: 8.2 },
+            { month: '2025/10', rev: 6.50, yoy: 6.5 },
+            { month: '2025/11', rev: 5.10, yoy: 5.4 },
+            { month: '2025/12', rev: 7.20, yoy: 7.8 },
+            { month: '2026/01', rev: 5.50, yoy: 5.8 },
+            { month: '2026/02', rev: 5.10, yoy: 6.2 },
+            { month: '2026/03', rev: 5.20, yoy: 6.1 },
+            { month: '2026/04', rev: 5.40, yoy: 5.9 },
+            { month: '2026/05', rev: 5.60, yoy: 5.7 },
+            { month: '2026/06', rev: 5.30, yoy: 6.0 },
+            { month: '2026/07', rev: 5.50, yoy: 5.8 },
+            { month: '2026/08', rev: 5.70, yoy: 5.6 }
+        ];
+
+        const years = fullData.map(d => d.year);
+        const dividends = fullData.map(d => d.div);
+        const yields = fullData.map(d => parseFloat(d.yield));
+        const revenues = fullData.map(d => d.revenue);
+        const profits = fullData.map(d => d.profit);
+
+        // 注入配息歷史數據表
+        const tableBody = document.getElementById('dataTableBody');
+        [...fullData].reverse().forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="p-3 font-medium text-slate-700">${row.year}</td>
+                <td class="p-3 text-right text-blue-600 font-bold">${row.div.toFixed(2)}</td>
+                <td class="p-3 text-right text-emerald-600">${row.yield}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        // 注入稅前淨利級距表
+        const pretaxTableBody = document.getElementById('pretaxTableBody');
+        [...pretaxGrowthData].reverse().forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between items-center bg-white p-2 rounded border border-slate-100';
+            div.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="font-medium text-slate-700">${item.year}年：${item.pretax.toFixed(1)}億</span>
+                    <span class="text-[10px] px-1.5 py-0.5 border rounded ${item.levelBadge}">${item.levelClass}</span>
+                </div>
+                <span class="font-bold ${item.growthRate >= 0 ? 'text-slate-800' : 'text-rose-600'}">
+                    ${item.growthRate >= 0 ? '+' : ''}${item.growthRate}%
+                </span>
+            `;
+            pretaxTableBody.appendChild(div);
+        });
+
+        // 1. 配息與殖利率綜合圖表
+        const divYieldCtx = document.getElementById('dividendYieldChart').getContext('2d');
+        new Chart(divYieldCtx, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [
+                    {
+                        label: '現金股利 (元)',
+                        data: dividends,
+                        backgroundColor: (context) => {
+                            const index = context.dataIndex;
+                            return index === fullData.length - 1 ? '#ef4444' : 'rgba(59, 130, 246, 0.8)';
+                        },
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: '估計殖利率 (%)',
+                        data: yields,
+                        type: 'line',
+                        borderColor: '#10b981',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointRadius: 4,
+                        yAxisID: 'y1',
+                        order: 1,
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: '現金(元)' } },
+                    y1: { 
+                        beginAtZero: true, 
+                        position: 'right', 
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: '殖利率(%)' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                return label + ': ' + context.parsed.y;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. 月營收與 YoY 雙軸圖表
+        const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.map(d => d.month),
+                datasets: [
+                    {
+                        label: '單月營收 (億元)',
+                        data: monthlyData.map(d => d.rev),
+                        backgroundColor: (context) => {
+                            const rev = context.raw;
+                            return rev >= 6.5 ? 'rgba(147, 51, 234, 0.9)' : 'rgba(168, 85, 247, 0.6)';
+                        },
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'YoY 年增率 (%)',
+                        data: monthlyData.map(d => d.yoy),
+                        type: 'line',
+                        borderColor: '#f59e0b',
+                        backgroundColor: '#f59e0b',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        yAxisID: 'yYoY',
+                        order: 1,
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '單月營收 (億元)' }
+                    },
+                    yYoY: {
+                        position: 'right',
+                        min: 0,
+                        max: 12,
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'YoY 年增率 (%)' },
+                        ticks: {
+                            callback: value => value + '%'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return `YoY 年增率: +${context.parsed.y}%`;
+                                }
+                                return `單月營收: ${context.parsed.y} 億元`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. 年度營運成長圖
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        new Chart(profitCtx, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [
+                    {
+                        label: '年度營收 (億)',
+                        data: revenues,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '稅後淨利 (億)',
+                        data: profits,
+                        borderColor: '#f59e0b',
+                        borderDash: [5, 5],
+                        pointStyle: 'rectRot',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // 4. 2026 每月目標 vs 實際營收 & 達成率圖表
+        const targetVsActualCtx = document.getElementById('targetVsActualChart').getContext('2d');
+        const months2026 = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月(預)', '10月(預)', '11月(預)', '12月(預)'];
+        const targets2026 = [5.40, 5.00, 5.10, 5.30, 5.50, 5.20, 5.40, 5.50, 7.00, 6.60, 5.30, 7.40];
+        const actuals2026 = [5.50, 5.10, 5.20, 5.40, 5.60, 5.30, 5.50, 5.70, null, null, null, null];
+        const achievementRates = actuals2026.map((act, i) => act ? ((act / targets2026[i]) * 100).toFixed(1) : null);
+
+        new Chart(targetVsActualCtx, {
+            type: 'bar',
+            data: {
+                labels: months2026,
+                datasets: [
+                    {
+                        label: '月度預估目標 (億)',
+                        data: targets2026,
+                        backgroundColor: 'rgba(203, 213, 225, 0.7)',
+                        borderRadius: 4,
+                        order: 3
+                    },
+                    {
+                        label: '實際營收 (億)',
+                        data: actuals2026,
+                        backgroundColor: (context) => {
+                            const index = context.dataIndex;
+                            return index === 7 ? '#10b981' : 'rgba(59, 130, 246, 0.85)';
+                        },
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: '單月達成率 (%)',
+                        data: achievementRates,
+                        type: 'line',
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b981',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'yRate',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '營收 (億元)' }
+                    },
+                    yRate: {
+                        position: 'right',
+                        min: 90,
+                        max: 110,
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: '達成率 (%)' },
+                        ticks: {
+                            callback: value => value + '%'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return context.parsed.y ? `達成率: ${context.parsed.y}%` : '尚無實際數據';
+                                }
+                                return `${context.dataset.label}: ${context.parsed.y || '未到期'} 億元`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 5. 稅前淨利與 YoY 成長率 (按級距著色)
+        const pretaxGrowthCtx = document.getElementById('pretaxGrowthChart').getContext('2d');
+        new Chart(pretaxGrowthCtx, {
+            type: 'bar',
+            data: {
+                labels: pretaxGrowthData.map(d => d.year),
+                datasets: [
+                    {
+                        label: '年度稅前淨利 (億元)',
+                        data: pretaxGrowthData.map(d => d.pretax),
+                        backgroundColor: 'rgba(226, 232, 240, 0.9)',
+                        borderColor: '#94a3b8',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: '稅前淨利 YoY 成長率 (%)',
+                        data: pretaxGrowthData.map(d => d.growthRate),
+                        type: 'line',
+                        borderColor: '#6366f1',
+                        backgroundColor: (context) => pretaxGrowthData.map(d => d.colorHex),
+                        pointBackgroundColor: pretaxGrowthData.map(d => d.colorHex),
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        borderWidth: 2,
+                        yAxisID: 'yGrowth',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '稅前淨利 (億元)' }
+                    },
+                    yGrowth: {
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'YoY 成長率 (%)' },
+                        ticks: {
+                            callback: value => value + '%'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const idx = context.dataIndex;
+                                const item = pretaxGrowthData[idx];
+                                if (context.dataset.type === 'line') {
+                                    return `成長率 (YoY): ${item.growthRate}% [${item.levelClass}]`;
+                                }
+                                return `稅前淨利: ${item.pretax} 億元`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
